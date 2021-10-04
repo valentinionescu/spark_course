@@ -24,3 +24,6 @@ sudo systemctl status grafana-server
 
 
 https://github.com/uber-common/jvm-profiler.git
+
+
+spark-shell --jars hdfs:/user/hdfs/jvm-profiler-1.0.0.jar --conf spark.executor.extraJavaOptions=-javaagent:jvm-profiler-1.0.0.jar=repom.uber.profiling.reporters.InfluxDBOutputReporter
