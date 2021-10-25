@@ -1,0 +1,38 @@
+1   // ERROR cluster.YarnScheduler: Lost executor 1 on valentin-ionescu-2.gce.cloudera.com: Container killed by YARN for exceeding memory limits.  4.6 GB of 4.5 GB physical memory used. Consider boosting spark.yarn.executor.memoryOverhead or disabling yarn.nodemanager.vmem-check-enabled because of YARN-4714
+    Solution: Make smaller Partitions or Increase the Overhead
+
+2   //SIGTERM
+    // ERROR cluster.YarnScheduler: Lost executor 7 on valentin-ionescu-3.gce.cloudera.com: Container marked as failed: container_1632654247912_0027_01_000014 on host: valentin-ionescu-3.gce.cloudera.com. Exit status: 143. Diagnostics: [2021-09-30 09:15:49.059]Container killed on request. Exit code is 143
+    //[2021-09-30 09:15:49.059]Container exited with a non-zero exit code 143.
+    //[2021-09-30 09:15:49.060]Killed by external signal
+
+    in the stderr log of the executor
+    java.lang.OutOfMemoryError: Java heap space
+    Solution: Make smaller Partitions or Increase executor memory
+
+3    //SIGKILL
+    //ERROR cluster.YarnScheduler: Lost executor 16 on valentin-ionescu-2.gce.cloudera.com: Container marked as failed: container_1632654247912_0026_01_000025 on host: valentin-ionescu-2.gce.cloudera.com. Exit status: 137. Diagnostics: [2021-09-30 08:54:10.142]Container killed on request. Exit code is 137
+    //[2021-09-30 08:54:10.186]Container exited with a non-zero exit code 137.
+    //[2021-09-30 08:54:10.187]Killed by external signal
+    //  .......
+    //java.lang.OutOfMemoryError: GC Overhead Limit Exceeded  in the driver
+
+    in the stdout log of the executor
+    //# There is insufficient memory for the Java Runtime Environment to continue.
+    //# Native memory allocation (mmap) failed to map 349700096 bytes for committing reserved memory.
+    //# An error report file with more information is saved as:
+    //# /yarn/nm/usercache/hdfs/appcache/application_1632654247912_0026/container_1632654247912_0026_01_000014/hs_err_pid30814.log
+    Solution: Make smaller Partitions or Increase executor memory
+
+4    Caused by: org.apache.spark.SparkException: Kryo serialization failed: Buffer overflow. Available: 0, required: 36393753. To avoid this, increase spark.kryoserializer.buffer.max value.
+	at org.apache.spark.serializer.KryoSerializerInstance.serialize(KryoSerializer.scala:331)
+	at org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:504)
+	... 3 more
+    Caused by: com.esotericsoftware.kryo.KryoException: Buffer overflow. Available: 0, required: 36393753
+
+
+5   Caused by: java.lang.OutOfMemoryError: Not enough memory to build and broadcast the table to all worker nodes. As a workaround, you can either disable broadcast by setting spark.sql.autoBroadcastJoinThreshold to -1 or increase the spark driver memory by setting spark.driver.memory to a higher value
+
+    // Get the JVM configuration (GC). Go to the stdout log of the any executor
+    // --conf "spark.executor.extraJavaOptions=-XX:+PrintFlagsFinal"
+    // --conf "spark.executor.extraJavaOptions=-XX:+UseG1GC"
